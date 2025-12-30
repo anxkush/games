@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake and Ladder Game</title>
+    <link rel="stylesheet" href="GAME.CSS">
+</head>
+<body>
+    <h1>Snake and Ladder Game</h1>
+    <div class="game-container">
+        <div class="board" id="board"></div>
+        <div class="controls">
+            <button id="rollBtn">Roll Dice</button>
+        </div>
+        <div id="dice"></div>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Board setup
+        const board = document.getElementById('board');
+        const size = 10;
+        let squares = {};
+
+        for (let i = size * size; i > 0; i--) {
+            const square = document.createElement('div');
+            square.className = 'square';
+            square.textContent = i;
+            square.id = 'square-' + i;
+            board.appendChild(square);
+            squares[i] = square;
+        }
+
+        // Snakes and ladders
+        const snakes = {16: 6, 48: 30, 62: 19, 64: 60, 93: 68, 95: 24, 97: 76, 98: 78};
+        const ladders = {1: 38, 4: 14, 9: 31, 21: 42, 28: 84, 36: 44, 51: 67, 71: 91, 80: 100};
+
+        // Players
+        let players = [1, 1];
+        let currentPlayer = 0;
+        const playerColors = ['red', 'blue'];
+
+        function updateBoard() {
+            for (let i = 1; i <= 100; i++) {
+                squares[i].innerHTML = i;
+                squares[i].classList.remove('player1', 'player2');
+            }
+            players.forEach((pos, idx) => {
+                squares[pos].innerHTML = `<span class="player${idx + 1}"></span>`;
+            });
+        }
+
+        function rollDice() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        function movePlayer() {
+            const dice = rollDice();
+            document.getElementById('dice').textContent = 'Dice: ' + dice;
+
+            let pos = players[currentPlayer] + dice;
+            if (pos > 100) pos = players[currentPlayer];
+
+            if (snakes[pos]) pos = snakes[pos];
+            if (ladders[pos]) pos = ladders[pos];
+
+            players[currentPlayer] = pos;
+            updateBoard();
+
+            if (pos === 100) {
+                document.getElementById('status').textContent = 'Player ' + (currentPlayer + 1) + ' wins!';
+                document.getElementById('rollBtn').disabled = true;
+            } else {
+                currentPlayer = 1 - currentPlayer;
+                document.getElementById('status').textContent = 'Player ' + (currentPlayer + 1) + '\'s turn';
+            }
+        }
+
+        document.getElementById('rollBtn').onclick = movePlayer;
+        updateBoard();
+        document.getElementById('status').textContent = 'Player 1\'s turn';
+    </script>
+</body>
+</html>
